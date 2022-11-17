@@ -1,0 +1,18 @@
+{
+    "ps": {
+        "name": "Poker Stars",
+        "domain": "www.pokerstars.es",
+        "event_class_name": "eventView",
+        "teams_class_name": "event-schedule-participants-name",
+        "event_tag": "li",
+        "rates_dom_location": "button__bet__odds"
+    },
+    "bf": {
+        "name": "Bet Fair",
+        "domain": "www.betfair.es",
+        "event_class_name": "avb-col",
+        "event_tag": "div",
+        "teams_class_name": "team-name",
+        "rates_dom_location": "market-3-runners>selection"
+    }
+}
