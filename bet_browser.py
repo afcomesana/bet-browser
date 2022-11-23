@@ -57,18 +57,34 @@ class BetBrowser:
         return success
         
     ### FIND INFORMATIVE PARTS OF ELEMENTS:
-    def get_matches(self, bh, league):
+    def get_matches_and_prices(self, bh, league):
         url = self.get_url(bh=bh, league=league)
         
         if not self.access_to_page(url=url, wait_for_element_class_name=self.bh_info[bh]['event_class_name']):
             raise BrowserException('Could not open page')
         
-        matches = self.browser_driver.find_elements(
-            by=By.CLASS_NAME,
-            value=self.bh_info
-        )
-        
-        return matches
+        if 'teams_class_name' in self.bh_info[bh].keys():
+            matches = self.browser_driver.find_elements(
+                    by=By.CLASS_NAME,
+                    value=self.bh_info[bh]['teams_class_name']
+                    )
+        else:
+            matches = self.browser_driver.find_elements(
+                    by=By.CSS_SELECTOR,
+                    value=f"[id^='{self.bh_info[bh]['match_id_name']}']"
+                    )
+        matches = [ match.text.replace('\n','-').replace(' ','_') for match in matches ]
+
+        prices = self.browser_driver.find_elements(
+                by=By.CLASS_NAME,
+                value=self.bh_info[bh]['prices_class_name']
+                )
+        prices = [ price.text.replace('\n','-') for price in prices if len(price.text.replace('\n','-').split('-'))==3 ]
+
+        # Check if we have gotten the same matches as prices
+        assert len(matches) == len(prices)
+
+        return matches,prices
     
         
     ### OPEN AND CLOSE THE WEB BROWSER:
