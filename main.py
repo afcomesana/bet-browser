@@ -5,6 +5,7 @@ if __name__ == '__main__':
 
     try:
         bet_browser.open_browser()
-        bet_browser.get_matches(bh='ps', league='spain-second-league')
+        bet_browser.get_matches_and_prices(bh='ps', league='spain-second-league')
+        bet_browser.get_matches_and_prices(bh='bf', league='spain-second-league')
     finally:
         bet_browser.close_browser()
