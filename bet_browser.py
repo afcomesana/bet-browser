@@ -92,16 +92,14 @@ class BetBrowser:
     
     def pair_matches(self,**kwargs:dict):
         '''Match matches from different bh, keeping the bet prices from each bh.'''
-        unique_matches = {}
+        self.unique_matches = {}
         for iter in enumerate(kwargs.items()):
             iter,key,value = iter[0],iter[1][0],iter[1][1]
             for match in value.keys():
-                if iter == 0: unique_matches[match] = { key: value[match] }
+                if iter == 0: self.unique_matches[match] = { key: value[match] }
                 else:
-                    coincidence = min_levenshtein_distance( match, *unique_matches.keys() )
-                    if coincidence: unique_matches[coincidence][key] = value[match]
-
-        return unique_matches
+                    coincidence = min_levenshtein_distance( match, *self.unique_matches.keys() )
+                    if coincidence: self.unique_matches[coincidence][key] = value[match]
         
     ### OPEN AND CLOSE THE WEB BROWSER:
     def open_browser(self):
