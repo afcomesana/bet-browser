@@ -8,6 +8,7 @@ from selenium.common.exceptions import TimeoutException
 from webdriver_manager.firefox import GeckoDriverManager
 from exceptions import BrowserException
 from utils import min_levenshtein_distance
+from numpy import amax
 
 class BetBrowser:
     # Load variables helpful to dig into the betting houses websites:
@@ -100,6 +101,14 @@ class BetBrowser:
                 else:
                     coincidence = min_levenshtein_distance( match, *self.unique_matches.keys() )
                     if coincidence: self.unique_matches[coincidence][key] = value[match]
+    
+    def get_max_bets_for_match(self):
+        '''Get max bet prices for each possibility(1,X,2) between different bh.'''
+        for key,value in self.unique_matches.items():
+            bet_prices = []
+            for key2,value2 in value.items():
+                bet_prices += [ [float(val.replace(',','.')) for val in value2] ]
+            self.unique_matches[key]['max_bets'] = amax(bet_prices,axis=0).tolist()
         
     ### OPEN AND CLOSE THE WEB BROWSER:
     def open_browser(self):
