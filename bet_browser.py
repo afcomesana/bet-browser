@@ -103,7 +103,7 @@ class BetBrowser:
                     if coincidence: self.unique_matches[coincidence][key] = value[match]
     
     def get_max_bets_for_match(self):
-        '''Get max bet prices for each possibility(1,X,2) between different bh.'''
+        '''Get max bet prices for each possibility(1,X,2) for each match between different bh.'''
         for key,value in self.unique_matches.items():
             bet_prices = []
             for key2,value2 in value.items():
