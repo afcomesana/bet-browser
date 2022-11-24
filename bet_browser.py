@@ -7,8 +7,8 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.firefox import GeckoDriverManager
 from exceptions import BrowserException
-from utils import min_levenshtein_distance
-from numpy import amax
+from utils import min_levenshtein_distance,calculate_result_inversion
+from numpy import amax,unique
 
 class BetBrowser:
     # Load variables helpful to dig into the betting houses websites:
@@ -109,7 +109,31 @@ class BetBrowser:
             for key2,value2 in value.items():
                 bet_prices += [ [float(val.replace(',','.')) for val in value2] ]
             self.unique_matches[key]['max_bets'] = amax(bet_prices,axis=0).tolist()
-        
+    
+    def find_potential_bets(self):
+        self.potential_bet_matches = self.unique_matches.copy()
+        for match in self.unique_matches.keys():
+            self.potential_bet_matches[match]['L'] = calculate_result_inversion(*self.unique_matches[match]['max_bets'])
+            if self.potential_bet_matches[match]['L'] >= 1: self.potential_bet_matches.pop( match )
+
+    def calculate_investing(self,invest_amount:int=1000):
+        for match in self.potential_bet_matches.keys():#self..keys():
+            invest = []
+            for price in self.potential_bet_matches[match]['max_bets']:
+                invest += [ invest_amount/(self.potential_bet_matches[match]['L']*price) ]
+            self.potential_bet_matches[match]['amount_to_invest'] = invest
+    
+    def calculate_net_profit(self):
+        for match in self.potential_bet_matches.keys():#self.potential_bet_matches.keys():
+            net_profit = []
+            for iter in range(len(self.potential_bet_matches[match]['amount_to_invest'])):
+                profit = self.potential_bet_matches[match]['amount_to_invest'][iter] * self.potential_bet_matches[match]['max_bets'][iter]
+                net_profit += [ round( profit - sum(self.potential_bet_matches[match]['amount_to_invest']), 3 ) ]
+            
+            assert len(unique(net_profit)) == 1
+
+            self.potential_bet_matches[match]['net_profit'] = net_profit[0]
+
     ### OPEN AND CLOSE THE WEB BROWSER:
     def open_browser(self):
         '''Open a Firefox web browser.'''

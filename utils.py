@@ -10,6 +10,12 @@ def min_levenshtein_distance(string:str,*args:str):
                  maximum,value = sim, string1
         return value if maximum > 0.6 else None
 
+def calculate_result_inversion(*args:int):
+    L = 0
+    for price in args:
+        L += 1/price
+    return L
+
 def flatten_list( nested_list, flatenned_list = [] ):
     #Only allow using this function with 'list' objects
     if type(nested_list) != list:
