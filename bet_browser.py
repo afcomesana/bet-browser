@@ -7,6 +7,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.firefox import GeckoDriverManager
 from exceptions import BrowserException
+from utils import min_levenshtein_distance
 
 class BetBrowser:
     # Load variables helpful to dig into the betting houses websites:
@@ -57,7 +58,8 @@ class BetBrowser:
         return success
         
     ### FIND INFORMATIVE PARTS OF ELEMENTS:
-    def get_matches_and_prices(self, bh, league):
+    def get_matches_and_prices(self, bh:str, league:str):
+        '''Browse the bh page and use web scrapping to download the matches and bet prices.'''
         url = self.get_url(bh=bh, league=league)
         
         if not self.access_to_page(url=url, wait_for_element_class_name=self.bh_info[bh]['event_class_name']):
@@ -79,13 +81,27 @@ class BetBrowser:
                 by=By.CLASS_NAME,
                 value=self.bh_info[bh]['prices_class_name']
                 )
-        prices = [ price.text.replace('\n','-') for price in prices if len(price.text.replace('\n','-').split('-'))==3 ]
+        prices = [ price.text.replace('\n','-').split('-') for price in prices if len(price.text.replace('\n','-').split('-'))==3 ]
 
         # Check if we have gotten the same matches as prices
         assert len(matches) == len(prices)
 
-        return matches,prices
+        match_prices_dict = dict(zip(matches, prices))
+
+        return match_prices_dict
     
+    def pair_matches(self,**kwargs:dict):
+        '''Match matches from different bh, keeping the bet prices from each bh.'''
+        unique_matches = {}
+        for iter in enumerate(kwargs.items()):
+            iter,key,value = iter[0],iter[1][0],iter[1][1]
+            for match in value.keys():
+                if iter == 0: unique_matches[match] = { key: value[match] }
+                else:
+                    coincidence = min_levenshtein_distance( match, *unique_matches.keys() )
+                    if coincidence: unique_matches[coincidence][key] = value[match]
+
+        return unique_matches
         
     ### OPEN AND CLOSE THE WEB BROWSER:
     def open_browser(self):
