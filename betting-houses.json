@@ -12,5 +12,14 @@
         "event_class_name": "avb-col",
         "teams_class_name": "teams-container",
         "prices_class_name": "runner-list-selections"
+    },
+    "wh": {
+        "name": "William Hill",
+        "domain": "sports.williamhill.es/betting/es-es",
+        "event_class_name": "football-app",
+        "css_team_selector":"main",
+        "teams_class_name": "sp-o-market__title",
+        "css_price_selector":"section",
+        "prices_class_name": "sp-o-market__buttons"
     }
 }

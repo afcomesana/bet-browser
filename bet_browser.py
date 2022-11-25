@@ -57,7 +57,34 @@ class BetBrowser:
             print('It was not possible to access the URL provided.')
             
         return success
+    
+    def get_matches(self,bh:str):
+        '''Download the matches from the bh web page.'''
+        if 'teams_class_name' in self.bh_info[bh].keys():
+            if 'css_team_selector' in self.bh_info[bh].keys():
+                return self.browser_driver.find_elements(
+                        by=By.CSS_SELECTOR,
+                        value=f"{self.bh_info[bh]['css_team_selector']}.{self.bh_info[bh]['teams_class_name']}" )
+            else:
+                return self.browser_driver.find_elements(
+                        by=By.CLASS_NAME,
+                        value=self.bh_info[bh]['teams_class_name'] )
+        else:
+            return self.browser_driver.find_elements(
+                    by=By.CSS_SELECTOR,
+                    value=f"[id^='{self.bh_info[bh]['match_id_name']}']" )
         
+    def get_bet_prices(self,bh:str):
+        '''Download the bet prices from the bh web page.'''
+        if 'css_price_selector' in self.bh_info[bh].keys():
+            return self.browser_driver.find_elements(
+                        by=By.CSS_SELECTOR,
+                        value=f"{self.bh_info[bh]['css_price_selector']}.{self.bh_info[bh]['prices_class_name']}" )
+        else:
+            return self.browser_driver.find_elements(
+                    by=By.CLASS_NAME,
+                    value=self.bh_info[bh]['prices_class_name'] )
+
     ### FIND INFORMATIVE PARTS OF ELEMENTS:
     def get_matches_and_prices(self, bh:str, league:str):
         '''Browse the bh page and use web scrapping to download the matches and bet prices.'''
@@ -66,22 +93,10 @@ class BetBrowser:
         if not self.access_to_page(url=url, wait_for_element_class_name=self.bh_info[bh]['event_class_name']):
             raise BrowserException('Could not open page')
         
-        if 'teams_class_name' in self.bh_info[bh].keys():
-            matches = self.browser_driver.find_elements(
-                    by=By.CLASS_NAME,
-                    value=self.bh_info[bh]['teams_class_name']
-                    )
-        else:
-            matches = self.browser_driver.find_elements(
-                    by=By.CSS_SELECTOR,
-                    value=f"[id^='{self.bh_info[bh]['match_id_name']}']"
-                    )
+        matches = self.get_matches(bh=bh)
         matches = [ match.text.replace('\n','-').replace(' ','_') for match in matches ]
 
-        prices = self.browser_driver.find_elements(
-                by=By.CLASS_NAME,
-                value=self.bh_info[bh]['prices_class_name']
-                )
+        prices = self.get_bet_prices(bh=bh)
         prices = [ price.text.replace('\n','-').split('-') for price in prices if len(price.text.replace('\n','-').split('-'))==3 ]
 
         # Check if we have gotten the same matches as prices
@@ -113,7 +128,8 @@ class BetBrowser:
     def find_potential_bets(self):
         self.potential_bet_matches = self.unique_matches.copy()
         for match in self.unique_matches.keys():
-            self.potential_bet_matches[match]['L'] = calculate_result_inversion(*self.unique_matches[match]['max_bets'])
+            L = calculate_result_inversion(*self.unique_matches[match]['max_bets'])
+            self.potential_bet_matches[match]['L'] = L
             if self.potential_bet_matches[match]['L'] >= 1: self.potential_bet_matches.pop( match )
 
     def calculate_investing(self,invest_amount:int=1000):
