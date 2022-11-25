@@ -1,0 +1,28 @@
+{
+    "ps": {
+        "football-spain-second-league": {
+            "domain":"/sports/#/soccer/competitions/11523240",
+            "event_class_name": "eventView",
+            "match_id_name":"event-schedule-participants-",
+            "prices_class_name": "prices"
+        }
+    },
+    "bf": {
+        "football-spain-second-league": {
+            "domain":"/sport/football/segunda-divisi%C3%B3n-espa%C3%B1ola/12204313",
+            "event_class_name": "avb-col",
+            "teams_class_name": "teams-container",
+            "prices_class_name": "runner-list-selections"
+        }
+    },
+    "wh": {
+        "football-spain-second-league": {
+            "domain":"/football/competitions/OB_TY32982/Espana-LaLiga-SmartBank/matches/OB_MGMB/Ganador-del-partido",
+            "event_class_name": "football-app",
+            "css_team_selector":"main",
+            "teams_class_name": "sp-o-market__title",
+            "css_price_selector":"section",
+            "prices_class_name": "sp-o-market__buttons"
+        }
+    }
+}

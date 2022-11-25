@@ -6,9 +6,9 @@ if __name__ == '__main__':
     try:
         bet_browser.open_browser()
 
-        match_prices_dict_ps = bet_browser.get_matches_and_prices(bh='ps', league='spain-second-league')
-        match_prices_dict_bf = bet_browser.get_matches_and_prices(bh='bf', league='spain-second-league')
-        match_prices_dict_wh = bet_browser.get_matches_and_prices(bh='wh', league='spain-second-league')
+        match_prices_dict_ps = bet_browser.get_matches_and_prices(bh='ps', competition='football-spain-second-league')
+        match_prices_dict_bf = bet_browser.get_matches_and_prices(bh='bf', competition='football-spain-second-league')
+        match_prices_dict_wh = bet_browser.get_matches_and_prices(bh='wh', competition='football-spain-second-league')
 
         bet_browser.pair_matches(ps=match_prices_dict_ps,bf=match_prices_dict_bf,wh=match_prices_dict_wh)
 

@@ -18,18 +18,18 @@ class BetBrowser:
             self.bh_info = json.load(bh_info_file)
         
         # Related to leagues
-        with open('football-leagues.json','r') as fl_info_file:
-            self.fl_info = json.load(fl_info_file)
+        with open('competitions.json','r') as comp_info_file:
+            self.comp_info = json.load(comp_info_file)
 
     # ACCESSING URLS:
-    def get_url(self, bh:str, league:str= None):
+    def get_url(self, bh:str, competition:str= None):
         '''Build the url for accesing to matches.'''
 
         # bh short for "betting_houses"
         url = 'https://%s' % self.bh_info[bh]['domain']
         
-        if league != None:
-            url += self.fl_info[league][bh]
+        if competition != None:
+            url += self.comp_info[bh][competition]['domain']
         
         return url
     
@@ -58,45 +58,45 @@ class BetBrowser:
             
         return success
     
-    def get_matches(self,bh:str):
+    def get_matches(self,bh:str,competition:str):
         '''Download the matches from the bh web page.'''
-        if 'teams_class_name' in self.bh_info[bh].keys():
-            if 'css_team_selector' in self.bh_info[bh].keys():
+        if 'teams_class_name' in self.comp_info[bh][competition].keys():
+            if 'css_team_selector' in self.comp_info[bh][competition].keys():
                 return self.browser_driver.find_elements(
                         by=By.CSS_SELECTOR,
-                        value=f"{self.bh_info[bh]['css_team_selector']}.{self.bh_info[bh]['teams_class_name']}" )
+                        value=f"{self.comp_info[bh][competition]['css_team_selector']}.{self.comp_info[bh][competition]['teams_class_name']}" )
             else:
                 return self.browser_driver.find_elements(
                         by=By.CLASS_NAME,
-                        value=self.bh_info[bh]['teams_class_name'] )
+                        value=self.comp_info[bh][competition]['teams_class_name'] )
         else:
             return self.browser_driver.find_elements(
                     by=By.CSS_SELECTOR,
-                    value=f"[id^='{self.bh_info[bh]['match_id_name']}']" )
+                    value=f"[id^='{self.comp_info[bh][competition]['match_id_name']}']" )
         
-    def get_bet_prices(self,bh:str):
+    def get_bet_prices(self,bh:str,competition:str):
         '''Download the bet prices from the bh web page.'''
-        if 'css_price_selector' in self.bh_info[bh].keys():
+        if 'css_price_selector' in self.comp_info[bh][competition].keys():
             return self.browser_driver.find_elements(
                         by=By.CSS_SELECTOR,
-                        value=f"{self.bh_info[bh]['css_price_selector']}.{self.bh_info[bh]['prices_class_name']}" )
+                        value=f"{self.comp_info[bh][competition]['css_price_selector']}.{self.comp_info[bh][competition]['prices_class_name']}" )
         else:
             return self.browser_driver.find_elements(
                     by=By.CLASS_NAME,
-                    value=self.bh_info[bh]['prices_class_name'] )
+                    value=self.comp_info[bh][competition]['prices_class_name'] )
 
     ### FIND INFORMATIVE PARTS OF ELEMENTS:
-    def get_matches_and_prices(self, bh:str, league:str):
+    def get_matches_and_prices(self, bh:str, competition:str):
         '''Browse the bh page and use web scrapping to download the matches and bet prices.'''
-        url = self.get_url(bh=bh, league=league)
+        url = self.get_url(bh=bh, competition=competition)
         
-        if not self.access_to_page(url=url, wait_for_element_class_name=self.bh_info[bh]['event_class_name']):
+        if not self.access_to_page(url=url, wait_for_element_class_name=self.comp_info[bh][competition]['event_class_name']):
             raise BrowserException('Could not open page')
         
-        matches = self.get_matches(bh=bh)
+        matches = self.get_matches(bh=bh, competition=competition)
         matches = [ match.text.replace('\n','-').replace(' ','_') for match in matches ]
 
-        prices = self.get_bet_prices(bh=bh)
+        prices = self.get_bet_prices(bh=bh, competition=competition)
         prices = [ price.text.replace('\n','-').split('-') for price in prices if len(price.text.replace('\n','-').split('-'))==3 ]
 
         # Check if we have gotten the same matches as prices
