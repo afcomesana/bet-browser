@@ -58,47 +58,45 @@ class BetBrowser:
             
         return success
     
-    def get_matches(self,bh:str,competition:str):
-        '''Download the matches from the bh web page.'''
-        if 'teams_class_name' in self.comp_info[bh][competition].keys():
-            if 'css_team_selector' in self.comp_info[bh][competition].keys():
+    def get_elements_from_browser(self,bh:str,competition:str,json_class_name:str,json_css_selector:str,json_id_name:str):
+        '''Download elements from the browser. Mainly deisgned for getting matches and bet prices.'''
+        if json_class_name in self.comp_info[bh][competition].keys():
+            if json_css_selector in self.comp_info[bh][competition].keys():
                 return self.browser_driver.find_elements(
-                        by=By.CSS_SELECTOR,
-                        value=f"{self.comp_info[bh][competition]['css_team_selector']}.{self.comp_info[bh][competition]['teams_class_name']}" )
+                            by=By.CSS_SELECTOR,
+                            value=f"{self.comp_info[bh][competition][json_css_selector]}.{self.comp_info[bh][competition][json_class_name]}" )
             else:
                 return self.browser_driver.find_elements(
-                        by=By.CLASS_NAME,
-                        value=self.comp_info[bh][competition]['teams_class_name'] )
-        else:
-            return self.browser_driver.find_elements(
-                    by=By.CSS_SELECTOR,
-                    value=f"[id^='{self.comp_info[bh][competition]['match_id_name']}']" )
-        
-    def get_bet_prices(self,bh:str,competition:str):
-        '''Download the bet prices from the bh web page.'''
-        if 'css_price_selector' in self.comp_info[bh][competition].keys():
-            return self.browser_driver.find_elements(
-                        by=By.CSS_SELECTOR,
-                        value=f"{self.comp_info[bh][competition]['css_price_selector']}.{self.comp_info[bh][competition]['prices_class_name']}" )
-        else:
-            return self.browser_driver.find_elements(
                     by=By.CLASS_NAME,
-                    value=self.comp_info[bh][competition]['prices_class_name'] )
+                    value=self.comp_info[bh][competition][json_class_name] )
+        return self.browser_driver.find_elements(
+                    by=By.CSS_SELECTOR,
+                    value=f"[id^='{self.comp_info[bh][competition][json_id_name]}']" )
 
     ### FIND INFORMATIVE PARTS OF ELEMENTS:
-    def get_matches_and_prices(self, bh:str, competition:str):
+    def get_matches_and_prices(self, bh:str, competition:str, possible_results:int=3):
         '''Browse the bh page and use web scrapping to download the matches and bet prices.'''
         url = self.get_url(bh=bh, competition=competition)
         
         if not self.access_to_page(url=url, wait_for_element_class_name=self.comp_info[bh][competition]['event_class_name']):
             raise BrowserException('Could not open page')
         
-        matches = self.get_matches(bh=bh, competition=competition)
-        matches = [ match.text.replace('\n','-').replace(' ','_') for match in matches ]
+        matches = self.get_elements_from_browser(
+                bh=bh,
+                competition=competition,
+                json_class_name='teams_class_name',
+                json_css_selector='css_team_selector',
+                json_id_name='match_id_name')
+        matches = [ match.text.replace('\n','-').replace('@','-').replace(' ','_') for match in matches ]
 
-        prices = self.get_bet_prices(bh=bh, competition=competition)
-        prices = [ price.text.replace('\n','-').split('-') for price in prices if len(price.text.replace('\n','-').split('-'))==3 ]
-
+        prices = self.get_elements_from_browser(
+                bh=bh,
+                competition=competition,
+                json_class_name='prices_class_name',
+                json_css_selector='css_price_selector',
+                json_id_name='prices_id_name')
+        prices = [ price.text.replace('\n','-').replace('@','-').split('-') for price in prices if len(price.text.replace('\n','-').split('-'))==possible_results ]
+        
         # Check if we have gotten the same matches as prices
         assert len(matches) == len(prices)
 
