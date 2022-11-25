@@ -13,6 +13,12 @@
             "event_class_name": "avb-col",
             "teams_class_name": "teams-container",
             "prices_class_name": "runner-list-selections"
+        },
+        "basket-nba": {
+            "domain":"/sport/basketball/nba/10547864",
+            "event_class_name": "avb-col",
+            "teams_class_name": "teams-container",
+            "prices_class_name": "runner-list-selections"
         }
     },
     "wh": {
@@ -23,6 +29,12 @@
             "teams_class_name": "sp-o-market__title",
             "css_price_selector":"section",
             "prices_class_name": "sp-o-market__buttons"
+        },
+        "basket-nba": {
+            "domain":"/baloncesto/competici%C3%B3nes/NBA/partidos",
+            "event_class_name": "market-group",
+            "teams_class_name": "btmarket__content-margins",
+            "prices_id_name": "OB_MA"
         }
     }
 }
